@@ -20,8 +20,10 @@ class BaseUserForm(forms.ModelForm):
             self.fields['iban'].required = True
 
         self.old_iban = None
+        self.old_email = None
         if hasattr(self, 'instance') and hasattr(self.instance, 'pk') and self.instance.pk:
             self.old_iban = self.instance.iban
+            self.old_email = self.instance.email
 
     def clean_iban(self):
         iban = self.cleaned_data.get('iban')
@@ -51,5 +53,22 @@ class UserCreationForm(BaseUserCreationForm, BaseUserForm):
 
 
 class UserChangeForm(BaseUserChangeForm, BaseUserForm):
+    def __init__(self, *args, **kwargs):
+        super(UserChangeForm, self).__init__(*args, **kwargs)
+        if not self.user.is_superuser:
+            self.fields.pop('is_staff', None)
+            self.fields.pop('is_superuser', None)
+            self.fields.pop('created_by', None)
+            self.fields.pop('groups', None)
+            self.fields.pop('user_permissions', None)
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email:
+            if not self.old_email or self.old_email.lower() != email.lower():
+                if get_user_model().objects.filter(email__iexact=email).exists():
+                    raise forms.ValidationError(_('User with this email already exists.'))
+        return email
+
     class Meta(BaseUserChangeForm.Meta):
         model = get_user_model()
