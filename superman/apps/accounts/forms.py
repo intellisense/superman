@@ -34,11 +34,15 @@ class BaseUserForm(forms.ModelForm):
 
 class UserCreationForm(BaseUserCreationForm, BaseUserForm):
     def save(self, **kwargs):
+        commit = kwargs.get('commit', False)
+        kwargs['commit'] = False
         user = super(UserCreationForm, self).save(**kwargs)
         # set auto username
         user.username = generate_unique_username([user.first_name, user.last_name])
         # set user who is creating this new user
         user.created_by = self.user
+        if commit:
+            user.save()
         return user
 
     class Meta(BaseUserCreationForm.Meta):
@@ -47,4 +51,5 @@ class UserCreationForm(BaseUserCreationForm, BaseUserForm):
 
 
 class UserChangeForm(BaseUserChangeForm, BaseUserForm):
-    pass
+    class Meta(BaseUserChangeForm.Meta):
+        model = get_user_model()
