@@ -26,7 +26,7 @@ PACKAGE_ROOT = os.path.abspath(os.path.dirname(__file__))
 SECRET_KEY = '6%@2vnr2fuz9*)+!4=pvyg$!wqjn&swv8jkbxg*vh(#zojm&78'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', cast=bool, default=False)
+DEBUG = config('DEBUG', cast=bool, default=True)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default='*')
 
