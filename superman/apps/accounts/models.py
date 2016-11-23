@@ -6,7 +6,7 @@ from localflavor.generic.models import IBANField
 
 
 class User(AbstractUser):
-    iban = IBANField(_('IBAN'), null=True, blank=True)
+    iban = IBANField(_('IBAN'), null=True, unique=True)
     created_by = models.ForeignKey('self', null=True, blank=True,
                                    on_delete=models.SET_NULL, related_name='owned_users')
 

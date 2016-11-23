@@ -18,20 +18,18 @@ class BaseUserForm(forms.ModelForm):
         if not self.user.is_superuser:
             # non superuser can't add users without IBAN
             self.fields['iban'].required = True
+        else:
+            self.fields['iban'].required = False
 
-        self.old_iban = None
         self.old_email = None
         if hasattr(self, 'instance') and hasattr(self.instance, 'pk') and self.instance.pk:
-            self.old_iban = self.instance.iban
             self.old_email = self.instance.email
 
     def clean_iban(self):
-        iban = self.cleaned_data.get('iban')
-        if iban:
-            if not self.old_iban or self.old_iban.lower() != iban.lower():
-                if get_user_model().objects.filter(iban__iexact=iban).exists():
-                    raise forms.ValidationError(_('User with this IBAN already exists.'))
-        return iban
+        """
+        if IBAN is empty string return None instead
+        """
+        return self.cleaned_data.get('iban') or None
 
 
 class UserCreationForm(BaseUserCreationForm, BaseUserForm):
